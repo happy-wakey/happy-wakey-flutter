@@ -1,0 +1,132 @@
+name: Application state formal methods
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/formal-methods.yml'
+      - 'formal/**'
+      - 'lib/src/core/app_state.dart'
+      - 'lib/src/core/app_controller.dart'
+      - 'test/core/app_state_test.dart'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/formal-methods.yml'
+      - 'formal/**'
+      - 'lib/src/core/app_state.dart'
+      - 'lib/src/core/app_controller.dart'
+      - 'test/core/app_state_test.dart'
+  schedule:
+    - cron: '23 7 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: happy-wakey-flutter-formal-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.44.2'
+  QUINT_PACKAGE: '@informalsystems/quint@0.32.0'
+
+jobs:
+  app-state:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          show-progress: false
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install Node 22
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '22'
+
+      - name: Install Java 21 for Apalache
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Test the production transition kernel
+        run: |
+          flutter pub get
+          flutter test test/core/app_state_test.dart
+
+      - name: Typecheck model and deterministic traces
+        run: |
+          set -euo pipefail
+          npx --yes --package="$QUINT_PACKAGE" quint typecheck formal/app_state.qnt
+          npx --yes --package="$QUINT_PACKAGE" quint typecheck formal/app_state_test.qnt
+          npx --yes --package="$QUINT_PACKAGE" quint test \
+            formal/app_state_test.qnt \
+            --main=app_state_test \
+            --match='.*Test$'
+
+      - name: Explore 10,000 invariant-checked traces
+        run: |
+          set -euo pipefail
+          npx --yes --package="$QUINT_PACKAGE" quint run \
+            formal/app_state.qnt \
+            --main=app_state \
+            --max-samples=10000 \
+            --max-steps=24 \
+            --invariant=app_state_safety \
+            --witnesses \
+              booting_reached \
+              ready_reached \
+              signed_out_reached \
+              authenticating_reached \
+              signed_in_reached \
+              auth_failed_reached \
+              lane_idle_reached \
+              lane_running_reached \
+              lane_ready_reached \
+              lane_failed_reached \
+              onboarding_complete_reached
+
+      - name: Exhaustively check the bounded transition system
+        run: |
+          set -euo pipefail
+          mkdir -p .formal-artifacts
+          npx --yes --package="$QUINT_PACKAGE" quint verify \
+            formal/app_state.qnt \
+            --main=app_state \
+            --max-steps=4 \
+            --invariant=app_state_safety \
+            --out-itf='.formal-artifacts/counterexample.itf.json'
+
+      - name: Record exact verification inputs
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p .formal-artifacts
+          sha256sum \
+            formal/app_state.qnt \
+            formal/app_state_test.qnt \
+            lib/src/core/app_state.dart \
+            lib/src/core/app_controller.dart \
+            test/core/app_state_test.dart \
+            > .formal-artifacts/provenance.sha256
+
+      - name: Upload proof provenance or counterexample
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: happy-wakey-flutter-formal-${{ github.sha }}
+          path: .formal-artifacts
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14

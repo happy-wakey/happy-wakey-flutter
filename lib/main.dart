@@ -8,6 +8,7 @@ import 'src/core/config_store.dart';
 import 'src/core/environment.dart';
 import 'src/services/api_client.dart';
 import 'src/services/auth_service.dart';
+import 'src/services/bluetooth_service.dart';
 import 'src/services/calendar_service.dart';
 import 'src/services/cloud_reminder_service.dart';
 import 'src/services/news_service.dart';
@@ -35,6 +36,7 @@ Future<void> main() async {
   final controller = await AppController.bootstrap(
     configStore: SharedPreferencesConfigStore(),
     auth: auth,
+    bluetooth: UniversalHappyWakeyBluetoothService(),
     remoteConfig: SupabaseConfigService(auth.client),
     weather: WeatherService(api),
     stocks: StockService(api, apiKey: Environment.finnhubApiKey),

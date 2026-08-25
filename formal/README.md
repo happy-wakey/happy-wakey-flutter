@@ -14,8 +14,9 @@ The machine is the sole owner of:
 - authentication (`signedOut`, `authenticating`, `signedIn`, `failed`);
 - onboarding (`welcome`, `account`, `backup`, `essentials`, `ready`,
   `complete`); and
-- calendar, weather, stocks, news, onboarding hydration, desktop/local
-  notifications, cloud notifications, and cloud-reminder synchronization.
+- calendar, weather, stocks, news, Bluetooth device operations, onboarding
+  hydration, desktop/local notifications, cloud notifications, and
+  cloud-reminder synchronization.
 
 Widgets request typed events and render snapshots. They never mutate control
 state directly. Every asynchronous operation that can update modeled state gets
@@ -74,11 +75,11 @@ npx --yes --package="$QUINT_PACKAGE" quint verify \
 flutter test test/core/app_state_test.dart
 ```
 
-At creation, exact source hashes were:
+The current exact source hashes are:
 
 ```text
-1de333a314ecfc16465cb612fa752031cf3f2b78aeeaf1d3b0a4c03cd84c8f63  formal/app_state.qnt
-9af3abf90f9dec15da9086b0f216dac774607f8583925a984015815bdb77bc98  formal/app_state_test.qnt
+b47b95f89a8ac5ecaa14a9be2a5087a38d5eb425304b4943a4ce03c6a38625cc  formal/app_state.qnt
+caf225d4eddb00a9557d4a1f1dff9133142d190820c7d500f4b48c3564152d9f  formal/app_state_test.qnt
 ```
 
 CI records fresh SHA-256 provenance for the model, traces, Dart kernel,

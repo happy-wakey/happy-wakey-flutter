@@ -55,6 +55,17 @@ module app_state_test {
         app_state_safety,
       })
 
+  run bluetoothEffectUsesItsOwnTokenLaneTest =
+    init_signed_out
+      .then(apply(STARTUP_COMPLETED, BLUETOOTH, 0, WELCOME))
+      .then(apply(LANE_REQUESTED, BLUETOOTH, 0, WELCOME))
+      .then(apply(LANE_SUCCEEDED, BLUETOOTH, 1, WELCOME))
+      .expect(and {
+        s.lane_phase.get(BLUETOOTH) == LANE_READY,
+        s.lane_token.get(BLUETOOTH) == 0,
+        app_state_safety,
+      })
+
   run onboardingFollowsDeclaredEdgesTest =
     init_signed_out
       .then(apply(STARTUP_COMPLETED, WEATHER, 0, WELCOME))

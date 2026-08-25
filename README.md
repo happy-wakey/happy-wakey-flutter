@@ -5,7 +5,7 @@
 
 Happy Wakey is a local-first daily command center for phones, tablets,
 desktops, and the web. This repository is the Flutter sibling of
-[`happy-wakey.rs`](https://github.com/happy-wakey/happy-wakey.rs): it carries
+[`happy-wakey-desktop-app.rs`](https://github.com/happy-wakey/happy-wakey-desktop-app.rs): it carries
 forward the desktop app's calendar, weather, markets, news, links, OAuth,
 settings sync, and reminder features while adding an adaptive mobile UI, a
 daily planner, a focus timer, browser/PWA support, and visible formal-state
@@ -26,6 +26,8 @@ its native host.
   responses and local keyword enforcement.
 - Persistent local preferences, onboarding, bookmarks, planner tasks, and a
   guarded pause/resume focus timer.
+- Native Bluetooth Low Energy discovery and alarm previews on Android, iOS,
+  Linux, macOS, Windows, and compatible web browsers.
 - Material 3 layouts that move between a navigation drawer on mobile and a
   navigation rail on larger screens.
 - A single private application state machine with fail-closed transitions,
@@ -88,7 +90,7 @@ properties, assumptions, and the proof boundary are in
 ## Architecture
 
 `AppMachine` is the sole authority for application readiness,
-authentication, onboarding, and eight asynchronous operation lanes. Widgets
+authentication, onboarding, and nine asynchronous operation lanes. Widgets
 render snapshots and send typed events. `AppController` performs platform and
 network effects, but results can commit only through the machine with their
 original operation token.

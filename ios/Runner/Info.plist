@@ -37,6 +37,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Happy Wakey uses Bluetooth to discover and control nearby Happy Wakey alarm devices.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Happy Wakey uses Bluetooth to communicate with nearby Happy Wakey alarm devices.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -10,8 +10,8 @@ credential file is needed in the application bundle.
 | `FINNHUB_API_KEY` | Direct Finnhub development access | No |
 | `NEWS_API_KEY` | Direct NewsAPI development access | No |
 | `HAPPY_WAKEY_PLATFORM_URL` | Fallback base for shared auth and reminder gateway | Cloud reminders only |
-| `SHARED_AUTH_URL` | Optional dedicated shared-auth base URL | No |
-| `REMINDER_GATEWAY_URL` | Optional dedicated reminder-gateway base URL | No |
+| `HAPPY_WAKEY_SHARED_AUTH_URL` | Optional dedicated shared-auth base URL | No |
+| `HAPPY_WAKEY_GATEWAY_URL` | Optional dedicated reminder-gateway base URL | No |
 
 Both Supabase values must be present to enable identity. Add
 `com.happywakey.app://login-callback` to the project's allowed redirect URLs.

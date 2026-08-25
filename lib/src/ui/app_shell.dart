@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/app_controller.dart';
 import 'screens/browser_screen.dart';
 import 'screens/calendar_screen.dart';
+import 'screens/devices_screen.dart';
 import 'screens/focus_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/news_screen.dart';
@@ -52,6 +53,11 @@ class AppShell extends StatelessWidget {
       label: Text('Focus'),
     ),
     NavigationRailDestination(
+      icon: Icon(Icons.bluetooth_outlined),
+      selectedIcon: Icon(Icons.bluetooth_connected),
+      label: Text('Devices'),
+    ),
+    NavigationRailDestination(
       icon: Icon(Icons.public_outlined),
       selectedIcon: Icon(Icons.public),
       label: Text('Browser'),
@@ -71,6 +77,7 @@ class AppShell extends StatelessWidget {
     NewsScreen(),
     PlannerScreen(),
     FocusScreen(),
+    DevicesScreen(),
     BrowserScreen(),
     SettingsScreen(),
   ];

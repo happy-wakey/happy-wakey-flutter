@@ -92,6 +92,12 @@ class HomeScreen extends StatelessWidget {
               title: 'Start a focus block',
               detail: 'A guarded pause-and-resume timer',
             ),
+            _JumpCard(
+              destination: 7,
+              icon: Icons.bluetooth_searching,
+              title: 'Connect an alarm device',
+              detail: 'Native BLE discovery and safe previews',
+            ),
           ],
         ),
         if (!controller.machine.isSignedIn) ...[
@@ -104,7 +110,7 @@ class HomeScreen extends StatelessWidget {
                 'Sign in from Settings when Supabase OAuth is configured. Everything else remains local-first.',
               ),
               trailing: TextButton(
-                onPressed: () => controller.selectDestination(8),
+                onPressed: () => controller.selectDestination(9),
                 child: const Text('Settings'),
               ),
             ),

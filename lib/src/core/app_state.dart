@@ -52,6 +52,7 @@ enum OperationLane {
   weather,
   stocks,
   news,
+  bluetooth,
   onboardingHydration,
   desktopNotification,
   cloudNotification,

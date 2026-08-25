@@ -33,6 +33,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Happy Wakey uses Bluetooth to discover and control nearby Happy Wakey alarm devices.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Happy Wakey uses Bluetooth to communicate with nearby Happy Wakey alarm devices.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>$(PRODUCT_COPYRIGHT)</string>
 	<key>NSMainNibFile</key>

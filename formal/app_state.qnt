@@ -44,6 +44,7 @@ module app_state {
   pure val DESKTOP_NOTIFICATION = 5
   pure val CLOUD_NOTIFICATION = 6
   pure val CLOUD_REMINDER_SYNC = 7
+  pure val BLUETOOTH = 8
 
   pure val STARTUP_COMPLETED = 0
   pure val LOGIN_REQUESTED = 1
@@ -79,7 +80,8 @@ module app_state {
     ONBOARDING_HYDRATION,
     DESKTOP_NOTIFICATION,
     CLOUD_NOTIFICATION,
-    CLOUD_REMINDER_SYNC
+    CLOUD_REMINDER_SYNC,
+    BLUETOOTH
   )
   pure val AUTH_LANES = Set(
     CALENDAR,
@@ -114,7 +116,8 @@ module app_state {
     ONBOARDING_HYDRATION -> IDLE,
     DESKTOP_NOTIFICATION -> IDLE,
     CLOUD_NOTIFICATION -> IDLE,
-    CLOUD_REMINDER_SYNC -> IDLE
+    CLOUD_REMINDER_SYNC -> IDLE,
+    BLUETOOTH -> IDLE
   )
 
   pure def zero_generations: int -> int = Map(
@@ -125,7 +128,8 @@ module app_state {
     ONBOARDING_HYDRATION -> 0,
     DESKTOP_NOTIFICATION -> 0,
     CLOUD_NOTIFICATION -> 0,
-    CLOUD_REMINDER_SYNC -> 0
+    CLOUD_REMINDER_SYNC -> 0,
+    BLUETOOTH -> 0
   )
 
   pure def next_onboarding(step: int): int =

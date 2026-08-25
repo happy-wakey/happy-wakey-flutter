@@ -69,6 +69,22 @@ void main() {
       expect(machine.lane(OperationLane.news).activeToken, news.value);
     });
 
+    test('Bluetooth effects use a public stale-safe lane', () {
+      final machine = _started();
+      final request = machine.dispatch(
+        const LaneRequested(OperationLane.bluetooth),
+      );
+      expect(request.committed, isTrue);
+      expect(
+        machine
+            .dispatch(LaneSucceeded(OperationLane.bluetooth, request.token!))
+            .committed,
+        isTrue,
+      );
+      expect(machine.lane(OperationLane.bluetooth).phase, LanePhase.ready);
+      expect(machine.invariantError, isNull);
+    });
+
     test(
       'onboarding follows declared edges and completion is irreversible',
       () {

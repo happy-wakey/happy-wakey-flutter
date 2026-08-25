@@ -7,7 +7,9 @@ on:
       - 'formal/**'
       - 'lib/src/core/app_state.dart'
       - 'lib/src/core/app_controller.dart'
+      - 'lib/src/services/bluetooth_service.dart'
       - 'test/core/app_state_test.dart'
+      - 'test/services/bluetooth_service_test.dart'
   push:
     branches: [main]
     paths:
@@ -15,7 +17,9 @@ on:
       - 'formal/**'
       - 'lib/src/core/app_state.dart'
       - 'lib/src/core/app_controller.dart'
+      - 'lib/src/services/bluetooth_service.dart'
       - 'test/core/app_state_test.dart'
+      - 'test/services/bluetooth_service_test.dart'
   schedule:
     - cron: '23 7 * * 2'
   workflow_dispatch:
@@ -118,7 +122,9 @@ jobs:
             formal/app_state_test.qnt \
             lib/src/core/app_state.dart \
             lib/src/core/app_controller.dart \
+            lib/src/services/bluetooth_service.dart \
             test/core/app_state_test.dart \
+            test/services/bluetooth_service_test.dart \
             > .formal-artifacts/provenance.sha256
 
       - name: Upload proof provenance or counterexample

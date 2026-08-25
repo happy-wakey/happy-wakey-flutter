@@ -6,7 +6,7 @@ small, total transition system; platform integrations sit outside it.
 ## Control plane
 
 `lib/src/core/app_state.dart` owns readiness, authentication, onboarding, and
-eight effect lanes. Its mutable fields are private. `dispatch` copies the
+nine effect lanes. Its mutable fields are private. `dispatch` copies the
 machine, applies one event to the candidate, validates all invariants, and only
 then replaces the live state. Unsupported requests are explicit rejections and
 late completions are explicit stale stutters.
@@ -38,6 +38,9 @@ idle → running ↔ paused → completed, with reset from every phase.
 - Provider services normalize remote objects into immutable app models before
   they reach widgets.
 - Links permit only HTTP and HTTPS and open in the system browser.
+- `UniversalHappyWakeyBluetoothService` scans only the Happy Wakey service UUID,
+  validates the product service and writable command characteristic after
+  connection, and sends only bounded credential-free command envelopes.
 
 ## Failure semantics
 

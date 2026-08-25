@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../models/models.dart';
 import '../services/auth_service.dart';
+import '../services/bluetooth_service.dart';
 import '../services/calendar_service.dart';
 import '../services/cloud_reminder_service.dart';
 import '../services/news_service.dart';
@@ -23,6 +24,7 @@ final class AppController extends ChangeNotifier {
     required this._config,
     required this._machine,
     required this._auth,
+    required this._bluetooth,
     required this._remoteConfig,
     required this._weather,
     required this._stocks,
@@ -35,6 +37,7 @@ final class AppController extends ChangeNotifier {
   static Future<AppController> bootstrap({
     required ConfigStore configStore,
     required AuthService auth,
+    required HappyWakeyBluetoothService bluetooth,
     required SupabaseConfigService remoteConfig,
     required WeatherService weather,
     required StockService stocks,
@@ -53,6 +56,7 @@ final class AppController extends ChangeNotifier {
       config: config,
       machine: machine,
       auth: auth,
+      bluetooth: bluetooth,
       remoteConfig: remoteConfig,
       weather: weather,
       stocks: stocks,
@@ -65,6 +69,13 @@ final class AppController extends ChangeNotifier {
       controller._onAuthSessionChanged,
     );
     controller._dispatch(const StartupCompleted());
+    try {
+      controller._bluetoothSupported = await bluetooth.isSupported().timeout(
+        const Duration(seconds: 5),
+      );
+    } catch (_) {
+      controller._bluetoothSupported = false;
+    }
     try {
       await notifications.initialize();
     } catch (error) {
@@ -79,6 +90,7 @@ final class AppController extends ChangeNotifier {
   AppConfig _config;
   final AppMachine _machine;
   final AuthService _auth;
+  final HappyWakeyBluetoothService _bluetooth;
   final SupabaseConfigService _remoteConfig;
   final WeatherService _weather;
   final StockService _stocks;
@@ -98,6 +110,9 @@ final class AppController extends ChangeNotifier {
   List<WeatherData> _weatherData = const [];
   List<StockQuote> _stockData = const [];
   List<NewsItem> _newsData = const [];
+  List<HappyWakeyBleDevice> _bluetoothDevices = const [];
+  bool _bluetoothSupported = false;
+  String? _connectedBluetoothDeviceId;
   List<CalendarEvent> _calendarEvents = const [];
   CalendarAgenda _agenda = const CalendarAgenda.empty();
   int _cloudReminderPending = 0;
@@ -110,6 +125,9 @@ final class AppController extends ChangeNotifier {
   List<WeatherData> get weatherData => _weatherData;
   List<StockQuote> get stockData => _stockData;
   List<NewsItem> get newsData => _newsData;
+  List<HappyWakeyBleDevice> get bluetoothDevices => _bluetoothDevices;
+  bool get bluetoothSupported => _bluetoothSupported;
+  String? get connectedBluetoothDeviceId => _connectedBluetoothDeviceId;
   List<CalendarEvent> get calendarEvents => _calendarEvents;
   CalendarAgenda get agenda => _agenda;
   int get cloudReminderPending => _cloudReminderPending;
@@ -192,6 +210,76 @@ final class AppController extends ChangeNotifier {
   Future<void> refreshAll() async {
     await Future.wait([refreshWeather(), refreshStocks(), refreshNews()]);
     if (_machine.isSignedIn) await refreshCalendar();
+  }
+
+  Future<void> scanBluetooth() async {
+    final token = _beginLane(OperationLane.bluetooth);
+    if (token == null) return;
+    _setStatus('Scanning for Happy Wakey Bluetooth devices…');
+    try {
+      final devices = await _bluetooth.scan();
+      if (!_finishLane(OperationLane.bluetooth, token, succeeded: true)) return;
+      _bluetoothDevices = devices;
+      _setStatus(
+        devices.isEmpty
+            ? 'No Happy Wakey Bluetooth devices found'
+            : 'Found ${devices.length} Happy Wakey Bluetooth device(s)',
+      );
+    } catch (error) {
+      if (_finishLane(OperationLane.bluetooth, token, succeeded: false)) {
+        _setStatus('Bluetooth scan failed: $error');
+      }
+    }
+  }
+
+  Future<void> connectBluetooth(String deviceId) async {
+    final token = _beginLane(OperationLane.bluetooth);
+    if (token == null) return;
+    _setStatus('Connecting to Happy Wakey Bluetooth device…');
+    try {
+      await _bluetooth.connect(deviceId);
+      if (!_finishLane(OperationLane.bluetooth, token, succeeded: true)) {
+        await _bluetooth.disconnect();
+        return;
+      }
+      _connectedBluetoothDeviceId = _bluetooth.connectedDeviceId;
+      _setStatus('Happy Wakey Bluetooth device connected');
+    } catch (error) {
+      if (_finishLane(OperationLane.bluetooth, token, succeeded: false)) {
+        _setStatus('Bluetooth connection failed: $error');
+      }
+    }
+  }
+
+  Future<void> disconnectBluetooth() async {
+    final token = _beginLane(OperationLane.bluetooth);
+    if (token == null) return;
+    _setStatus('Disconnecting Bluetooth device…');
+    try {
+      await _bluetooth.disconnect();
+      if (!_finishLane(OperationLane.bluetooth, token, succeeded: true)) return;
+      _connectedBluetoothDeviceId = null;
+      _setStatus('Bluetooth device disconnected');
+    } catch (error) {
+      if (_finishLane(OperationLane.bluetooth, token, succeeded: false)) {
+        _setStatus('Bluetooth disconnect failed: $error');
+      }
+    }
+  }
+
+  Future<void> previewBluetoothAlarm() async {
+    final token = _beginLane(OperationLane.bluetooth);
+    if (token == null) return;
+    _setStatus('Sending a three-second alarm preview…');
+    try {
+      await _bluetooth.sendPreviewAlarm();
+      if (!_finishLane(OperationLane.bluetooth, token, succeeded: true)) return;
+      _setStatus('Bluetooth alarm preview sent');
+    } catch (error) {
+      if (_finishLane(OperationLane.bluetooth, token, succeeded: false)) {
+        _setStatus('Bluetooth alarm preview failed: $error');
+      }
+    }
   }
 
   Future<void> refreshWeather() async {
@@ -668,6 +756,7 @@ final class AppController extends ChangeNotifier {
     _focusTimer?.cancel();
     final subscription = _authSubscription;
     if (subscription != null) unawaited(subscription.cancel());
+    unawaited(_bluetooth.close());
     super.dispose();
   }
 }

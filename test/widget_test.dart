@@ -4,6 +4,7 @@ import 'package:happy_wakey/src/core/app_controller.dart';
 import 'package:happy_wakey/src/core/config_store.dart';
 import 'package:happy_wakey/src/services/api_client.dart';
 import 'package:happy_wakey/src/services/auth_service.dart';
+import 'package:happy_wakey/src/services/bluetooth_service.dart';
 import 'package:happy_wakey/src/services/calendar_service.dart';
 import 'package:happy_wakey/src/services/cloud_reminder_service.dart';
 import 'package:happy_wakey/src/services/news_service.dart';
@@ -22,6 +23,7 @@ void main() {
     final controller = await AppController.bootstrap(
       configStore: MemoryConfigStore(),
       auth: auth,
+      bluetooth: const UnavailableHappyWakeyBluetoothService(),
       remoteConfig: SupabaseConfigService(null),
       weather: WeatherService(api),
       stocks: StockService(api, apiKey: ''),

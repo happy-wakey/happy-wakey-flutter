@@ -1,0 +1,23 @@
+[package]
+org = "happy-wakey"
+name = "happy-wakey-flutter"
+version = "1.0.0"
+description = "Formally safe adaptive Happy Wakey app for mobile, desktop, and web"
+license = "MIT"
+keywords = ["flutter", "dart", "mobile", "web", "formal-methods"]
+
+[package.repository]
+vcs = "git"
+url = "https://github.com/happy-wakey/happy-wakey-flutter"
+
+[targets.dart]
+dir = "."
+adapter = "dart"
+
+[publish]
+include_readme = true
+tag_format = "v{version}"
+exclude = [".env", ".env.*", ".zed/**", "zed_modules/**", ".dart_tool/**", "build/**", "**/*.log", ".DS_Store"]
+
+[scripts]
+test = "flutter test"

@@ -147,6 +147,73 @@ void main() {
     expect(find.text('Bluetooth Low Energy is unavailable'), findsOneWidget);
   });
 
+  testWidgets('focus can start, pause, resume, and reset', (tester) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final controller = await _bootstrap();
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: controller,
+        child: const HappyWakeyApp(),
+      ),
+    );
+    await controller.onboardingSkip();
+    await controller.onboardingFinish();
+    controller.selectDestination(6);
+    await tester.pumpAndSettle();
+
+    expect(find.text('IDLE'), findsOneWidget);
+    await tester.tap(find.text('Start focus'));
+    await tester.pump();
+    expect(find.text('RUNNING'), findsOneWidget);
+
+    await tester.tap(find.text('Pause'));
+    await tester.pump();
+    expect(find.text('PAUSED'), findsOneWidget);
+
+    await tester.tap(find.text('Resume'));
+    await tester.pump();
+    expect(find.text('RUNNING'), findsOneWidget);
+
+    await tester.tap(find.text('Reset'));
+    await tester.pump();
+    expect(find.text('IDLE'), findsOneWidget);
+  });
+
+  testWidgets('browser lists only persisted https bookmarks', (tester) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final controller = await _bootstrap();
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: controller,
+        child: const HappyWakeyApp(),
+      ),
+    );
+    await controller.onboardingSkip();
+    await controller.onboardingFinish();
+    controller.selectDestination(8);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Useful links'), findsOneWidget);
+    expect(controller.config.browserBookmarks, isNotEmpty);
+    for (final bookmark in controller.config.browserBookmarks) {
+      expect(bookmark.url.scheme, 'https');
+      expect(bookmark.url.userInfo, isEmpty);
+    }
+    expect(find.textContaining('javascript:'), findsNothing);
+  });
+
   testWidgets('planner can add a local task', (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1;

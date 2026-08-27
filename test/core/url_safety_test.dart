@@ -14,6 +14,12 @@ void main() {
     expect(UrlSafety.isSafeHttpUri(Uri.parse('http://localhost/')), isTrue);
   });
 
+  test('accepts https loopback including IPv6', () {
+    expect(UrlSafety.isSafeHttpUri(Uri.parse('https://127.0.0.1/')), isTrue);
+    expect(UrlSafety.isSafeHttpUri(Uri.parse('http://[::1]/')), isTrue);
+    expect(UrlSafety.isSafeHttpUri(Uri.parse('https://[::1]/healthz')), isTrue);
+  });
+
   test('rejects cleartext internet, credentials, and public IP literals', () {
     expect(UrlSafety.isSafeHttpUri(Uri.parse('http://example.com')), isFalse);
     expect(
@@ -24,7 +30,12 @@ void main() {
       UrlSafety.isSafeHttpUri(Uri.parse('https://98.90.186.114')),
       isFalse,
     );
+    expect(
+      UrlSafety.isSafeHttpUri(Uri.parse('https://[2001:db8::1]/')),
+      isFalse,
+    );
     expect(UrlSafety.isSafeHttpUri(Uri.parse('javascript:alert(1)')), isFalse);
     expect(UrlSafety.isSafeHttpUri(Uri.parse('file:///etc/passwd')), isFalse);
+    expect(UrlSafety.isSafeHttpUri(Uri.parse('data:text/html,hi')), isFalse);
   });
 }

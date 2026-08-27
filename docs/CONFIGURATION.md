@@ -9,7 +9,7 @@ credential file is needed in the application bundle.
 | `SUPABASE_ANON_KEY` | Supabase publishable/anonymous client key | No |
 | `FINNHUB_API_KEY` | Direct Finnhub development access | No |
 | `NEWS_API_KEY` | Direct NewsAPI development access | No |
-| `HAPPY_WAKEY_PLATFORM_URL` | Fallback base for shared auth and reminder gateway | Cloud reminders only |
+| `HAPPY_WAKEY_PLATFORM_URL` | Fallback base for shared auth and reminder gateway. No default; fail-closed when unset. HTTPS hostname only (loopback HTTP allowed). | Cloud reminders only |
 | `HAPPY_WAKEY_SHARED_AUTH_URL` | Optional dedicated shared-auth base URL | No |
 | `HAPPY_WAKEY_GATEWAY_URL` | Optional dedicated reminder-gateway base URL | No |
 

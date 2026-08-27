@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 import '../core/environment.dart';
+import '../core/url_safety.dart';
 import '../models/models.dart';
 import 'api_client.dart';
 
@@ -151,8 +152,13 @@ final class CloudReminderService {
   );
 
   Uri _serviceUri(String base, String path) {
+    if (base.trim().isEmpty) {
+      throw const ApiException(
+        'Happy Wakey platform URL is unset; set HAPPY_WAKEY_PLATFORM_URL or a dedicated service override',
+      );
+    }
     final uri = Uri.tryParse(base);
-    if (uri == null || !uri.hasScheme || uri.host.isEmpty) {
+    if (uri == null || !UrlSafety.isSafeHttpUri(uri)) {
       throw const ApiException('Happy Wakey service URL is invalid');
     }
     return uri.replace(

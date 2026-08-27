@@ -24,6 +24,21 @@ void main() {
     },
   );
 
+  test('API client rejects public numeric IP hosts before I/O', () async {
+    var called = false;
+    final client = ApiClient(
+      client: MockClient((_) async {
+        called = true;
+        return http.Response('{}', 200);
+      }),
+    );
+    await expectLater(
+      client.getJson(Uri.parse('https://98.90.186.114/v1/bootstrap')),
+      throwsA(isA<ApiException>()),
+    );
+    expect(called, isFalse);
+  });
+
   test('API client accepts bounded HTTPS JSON and applies headers', () async {
     final client = ApiClient(
       client: MockClient((request) async {

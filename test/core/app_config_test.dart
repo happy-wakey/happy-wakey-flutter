@@ -25,6 +25,12 @@ void main() {
       'stock_symbols': [' aapl ', 'AAPL', '<script>', 'MSFT'],
       'news_keywords': List.generate(30, (index) => 'keyword-$index'),
       'focus_minutes': 999,
+      'browser_bookmarks': [
+        {'id': 'ok', 'title': 'Inbox', 'url': 'https://mail.google.com'},
+        {'id': 'xss', 'title': 'Nope', 'url': 'javascript:alert(1)'},
+        {'id': 'file', 'title': 'Disk', 'url': 'file:///etc/passwd'},
+        {'id': 'ip', 'title': 'Raw IP', 'url': 'https://98.90.186.114'},
+      ],
       'onboarding': {
         'completed': false,
         'current_step': 'made-up-step',
@@ -35,6 +41,8 @@ void main() {
     expect(config.stockSymbols, ['AAPL', 'MSFT']);
     expect(config.newsKeywords, hasLength(20));
     expect(config.focusMinutes, 120);
+    expect(config.browserBookmarks, hasLength(1));
+    expect(config.browserBookmarks.single.url.host, 'mail.google.com');
     expect(config.onboarding.step, OnboardingStep.welcome);
   });
 

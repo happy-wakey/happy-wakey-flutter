@@ -53,47 +53,57 @@ final class FocusMachine {
 
   FocusSnapshot get snapshot => _snapshot;
 
-  bool dispatch(FocusEvent event) {
-    final next = switch ((_snapshot.phase, event)) {
-      (FocusPhase.idle || FocusPhase.completed, FocusStarted(:final duration))
-          when duration > Duration.zero =>
-        FocusSnapshot(
-          phase: FocusPhase.running,
-          total: duration,
-          remaining: duration,
+  /// Pure transition: [current] and [event] in, next snapshot or null out.
+  static FocusSnapshot? apply(FocusSnapshot current, FocusEvent event) =>
+      switch ((current.phase, event)) {
+        (
+          FocusPhase.idle || FocusPhase.completed,
+          FocusStarted(:final duration),
+        )
+            when duration > Duration.zero =>
+          FocusSnapshot(
+            phase: FocusPhase.running,
+            total: duration,
+            remaining: duration,
+          ),
+        (FocusPhase.running, FocusTicked(:final elapsed)) => _tick(
+          current,
+          elapsed,
         ),
-      (FocusPhase.running, FocusTicked(:final elapsed)) => _tick(elapsed),
-      (FocusPhase.running, FocusPaused()) => FocusSnapshot(
-        phase: FocusPhase.paused,
-        total: _snapshot.total,
-        remaining: _snapshot.remaining,
-      ),
-      (FocusPhase.paused, FocusResumed()) => FocusSnapshot(
-        phase: FocusPhase.running,
-        total: _snapshot.total,
-        remaining: _snapshot.remaining,
-      ),
-      (_, FocusReset()) => const FocusSnapshot.idle(),
-      _ => null,
-    };
+        (FocusPhase.running, FocusPaused()) => FocusSnapshot(
+          phase: FocusPhase.paused,
+          total: current.total,
+          remaining: current.remaining,
+        ),
+        (FocusPhase.paused, FocusResumed()) => FocusSnapshot(
+          phase: FocusPhase.running,
+          total: current.total,
+          remaining: current.remaining,
+        ),
+        (_, FocusReset()) => const FocusSnapshot.idle(),
+        _ => null,
+      };
+
+  bool dispatch(FocusEvent event) {
+    final next = apply(_snapshot, event);
     if (next == null || !_valid(next)) return false;
     _snapshot = next;
     return true;
   }
 
-  FocusSnapshot _tick(Duration elapsed) {
-    if (elapsed <= Duration.zero) return _snapshot;
-    final remaining = _snapshot.remaining - elapsed;
+  static FocusSnapshot _tick(FocusSnapshot current, Duration elapsed) {
+    if (elapsed <= Duration.zero) return current;
+    final remaining = current.remaining - elapsed;
     if (remaining <= Duration.zero) {
       return FocusSnapshot(
         phase: FocusPhase.completed,
-        total: _snapshot.total,
+        total: current.total,
         remaining: Duration.zero,
       );
     }
     return FocusSnapshot(
       phase: FocusPhase.running,
-      total: _snapshot.total,
+      total: current.total,
       remaining: remaining,
     );
   }

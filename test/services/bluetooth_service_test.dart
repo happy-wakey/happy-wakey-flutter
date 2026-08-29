@@ -18,6 +18,19 @@ void main() {
     expect(value, isNot(contains('owner_id')));
   });
 
+  test('preview command lowercases a valid UUID and rejects empty ids', () {
+    final bytes = encodePreviewAlarmCommand(
+      '018F5CC6-6D8B-7B2A-9F38-269E6A7B1F11',
+    );
+    final value = jsonDecode(utf8.decode(bytes)) as Map<String, Object?>;
+    expect(value['operation_id'], '018f5cc6-6d8b-7b2a-9f38-269e6a7b1f11');
+    expect(() => encodePreviewAlarmCommand(''), throwsFormatException);
+    expect(
+      () => encodePreviewAlarmCommand('018f5cc6-6d8b-7b2a-9f38-269e6a7b1f1'),
+      throwsFormatException,
+    );
+  });
+
   test('preview command rejects malformed operation identifiers', () {
     expect(
       () => encodePreviewAlarmCommand('not-an-operation-id'),

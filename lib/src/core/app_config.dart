@@ -1,4 +1,5 @@
 import '../core/app_state.dart';
+import '../core/url_safety.dart';
 import '../models/models.dart';
 
 final class OnboardingConfig {
@@ -133,7 +134,7 @@ final class AppConfig {
         .toList(),
     browserBookmarks: _objects(json['browser_bookmarks'])
         .map(Bookmark.fromJson)
-        .where((bookmark) => bookmark.url.hasScheme)
+        .where((bookmark) => UrlSafety.isSafeHttpUri(bookmark.url))
         .toList(),
     supabaseSyncEnabled: json['supabase_sync_enabled'] as bool? ?? true,
     onboarding: OnboardingConfig.fromJson(_object(json['onboarding'])),
@@ -182,7 +183,10 @@ final class AppConfig {
       weatherLocations: locations,
       stockSymbols: symbols,
       newsKeywords: keywords,
-      browserBookmarks: browserBookmarks.take(50).toList(),
+      browserBookmarks: browserBookmarks
+          .where((bookmark) => UrlSafety.isSafeHttpUri(bookmark.url))
+          .take(50)
+          .toList(),
       reminderSettings: reminderSettings.copyWith(
         offsetsMinutes: offsets.take(5).toList(),
       ),

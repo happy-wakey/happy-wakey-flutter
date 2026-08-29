@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../core/url_safety.dart';
+
 final class ApiException implements Exception {
   const ApiException(this.message);
   final String message;
@@ -45,7 +47,7 @@ final class ApiClient {
     Object? body,
     required String service,
   }) async {
-    if (!_safeEndpoint(uri)) {
+    if (!UrlSafety.isSafeHttpUri(uri)) {
       throw ApiException('$service endpoint must use HTTPS');
     }
     final request = http.Request(method, uri)
@@ -86,15 +88,6 @@ final class ApiClient {
       throw ApiException('$service request failed: $error');
     }
   }
-
-  bool _safeEndpoint(Uri uri) =>
-      uri.scheme == 'https' ||
-      (uri.scheme == 'http' &&
-          const {
-            'localhost',
-            '127.0.0.1',
-            '::1',
-          }.contains(uri.host.toLowerCase()));
 
   String _errorText(String text) {
     final cleaned = text.replaceAll(RegExp(r'[\x00-\x1f\x7f]'), ' ').trim();

@@ -16,6 +16,7 @@ import '../services/weather_service.dart';
 import 'app_config.dart';
 import 'app_state.dart';
 import 'config_store.dart';
+import 'desktop_destinations.dart';
 import 'focus_state.dart';
 
 final class AppController extends ChangeNotifier {
@@ -137,6 +138,7 @@ final class AppController extends ChangeNotifier {
   bool loading(OperationLane lane) => _machine.lane(lane).isRunning;
 
   void selectDestination(int index) {
+    if (index < 0 || index >= kDesktopDestinations.length) return;
     if (index == _selectedDestination) return;
     _selectedDestination = index;
     notifyListeners();

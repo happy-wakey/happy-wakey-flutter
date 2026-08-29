@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_controller.dart';
+import '../core/desktop_destinations.dart';
 import 'screens/browser_screen.dart';
 import 'screens/calendar_screen.dart';
 import 'screens/devices_screen.dart';
@@ -16,57 +17,26 @@ import 'screens/weather_screen.dart';
 class AppShell extends StatelessWidget {
   const AppShell({super.key});
 
-  static const destinations = <NavigationRailDestination>[
-    NavigationRailDestination(
-      icon: Icon(Icons.home_outlined),
-      selectedIcon: Icon(Icons.home),
-      label: Text('Home'),
-    ),
-    NavigationRailDestination(
-      icon: Icon(Icons.calendar_today_outlined),
-      selectedIcon: Icon(Icons.calendar_today),
-      label: Text('Calendar'),
-    ),
-    NavigationRailDestination(
-      icon: Icon(Icons.cloud_outlined),
-      selectedIcon: Icon(Icons.cloud),
-      label: Text('Weather'),
-    ),
-    NavigationRailDestination(
-      icon: Icon(Icons.show_chart),
-      selectedIcon: Icon(Icons.monitor_heart),
-      label: Text('Markets'),
-    ),
-    NavigationRailDestination(
-      icon: Icon(Icons.newspaper_outlined),
-      selectedIcon: Icon(Icons.newspaper),
-      label: Text('News'),
-    ),
-    NavigationRailDestination(
-      icon: Icon(Icons.checklist_outlined),
-      selectedIcon: Icon(Icons.checklist),
-      label: Text('Planner'),
-    ),
-    NavigationRailDestination(
-      icon: Icon(Icons.timer_outlined),
-      selectedIcon: Icon(Icons.timer),
-      label: Text('Focus'),
-    ),
-    NavigationRailDestination(
-      icon: Icon(Icons.bluetooth_outlined),
-      selectedIcon: Icon(Icons.bluetooth_connected),
-      label: Text('Devices'),
-    ),
-    NavigationRailDestination(
-      icon: Icon(Icons.public_outlined),
-      selectedIcon: Icon(Icons.public),
-      label: Text('Browser'),
-    ),
-    NavigationRailDestination(
-      icon: Icon(Icons.settings_outlined),
-      selectedIcon: Icon(Icons.settings),
-      label: Text('Settings'),
-    ),
+  static const _destinationIcons = <String, (IconData, IconData)>{
+    'home': (Icons.home_outlined, Icons.home),
+    'calendar': (Icons.calendar_today_outlined, Icons.calendar_today),
+    'weather': (Icons.cloud_outlined, Icons.cloud),
+    'markets': (Icons.show_chart, Icons.monitor_heart),
+    'news': (Icons.newspaper_outlined, Icons.newspaper),
+    'planner': (Icons.checklist_outlined, Icons.checklist),
+    'focus': (Icons.timer_outlined, Icons.timer),
+    'devices': (Icons.bluetooth_outlined, Icons.bluetooth_connected),
+    'browser': (Icons.public_outlined, Icons.public),
+    'settings': (Icons.settings_outlined, Icons.settings),
+  };
+
+  static final destinations = [
+    for (final destination in kDesktopDestinations)
+      NavigationRailDestination(
+        icon: Icon(_destinationIcons[destination.id]!.$1),
+        selectedIcon: Icon(_destinationIcons[destination.id]!.$2),
+        label: Text(destination.label),
+      ),
   ];
 
   static const screens = <Widget>[

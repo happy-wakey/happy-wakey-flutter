@@ -56,10 +56,7 @@ final class FocusMachine {
   /// Pure transition: [current] and [event] in, next snapshot or null out.
   static FocusSnapshot? apply(FocusSnapshot current, FocusEvent event) =>
       switch ((current.phase, event)) {
-        (
-          FocusPhase.idle || FocusPhase.completed,
-          FocusStarted(:final duration),
-        )
+        (FocusPhase.idle || FocusPhase.completed, FocusStarted(:final duration))
             when duration > Duration.zero =>
           FocusSnapshot(
             phase: FocusPhase.running,

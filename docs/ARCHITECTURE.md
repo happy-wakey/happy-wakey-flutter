@@ -63,3 +63,12 @@ a backend proxy with authentication, quotas, and provider-specific policy.
 Formal verification covers the state transition abstraction, not plugin or
 remote-service correctness. CI therefore couples proof checks with native Dart
 tests and native-host compilation for all six platform targets.
+# Functional core and reactive projection
+
+`AppMachine` is the sole state authority: every event is reduced through its
+total transition function, checked against invariants, and committed atomically.
+`ReactiveAppState` is a replay-one RxDart projection of committed immutable
+snapshots. Its `signedIn`, `busy`, `status`, and `runningLanes` streams are
+distinct derived values for UI and integration consumers; subscribers cannot
+mutate state or dispatch around the machine. Network, persistence, timers,
+notifications, and Bluetooth remain effect adapters owned by `AppController`.

@@ -18,6 +18,7 @@ import 'app_state.dart';
 import 'config_store.dart';
 import 'desktop_destinations.dart';
 import 'focus_state.dart';
+import 'reactive_app_state.dart';
 
 final class AppController extends ChangeNotifier {
   AppController._({
@@ -66,6 +67,9 @@ final class AppController extends ChangeNotifier {
       notifications: notifications,
       cloudReminders: cloudReminders,
     );
+    controller._reactiveState = ReactiveAppState(
+      projectReactiveSnapshot(machine: machine, status: controller._status),
+    );
     controller._authSubscription = auth.sessionChanges.listen(
       controller._onAuthSessionChanged,
     );
@@ -100,6 +104,7 @@ final class AppController extends ChangeNotifier {
   final NotificationService _notifications;
   final CloudReminderService _cloudReminders;
   final FocusMachine _focusMachine = FocusMachine();
+  ReactiveAppState? _reactiveState;
 
   StreamSubscription<AuthSessionSnapshot?>? _authSubscription;
   Timer? _focusTimer;
@@ -134,6 +139,7 @@ final class AppController extends ChangeNotifier {
   int get cloudReminderPending => _cloudReminderPending;
   AuthSessionSnapshot? get session => _auth.currentSession;
   bool get supabaseConfigured => _auth.configured;
+  ReactiveAppState get reactiveState => _reactiveState!;
 
   bool loading(OperationLane lane) => _machine.lane(lane).isRunning;
 
@@ -737,6 +743,15 @@ final class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
+  void notifyListeners() {
+    if (_disposed) return;
+    _reactiveState?.publish(
+      projectReactiveSnapshot(machine: _machine, status: _status),
+    );
+    super.notifyListeners();
+  }
+
   OnboardingConfig _mergeOnboarding(
     OnboardingConfig local,
     OnboardingConfig remote,
@@ -758,6 +773,8 @@ final class AppController extends ChangeNotifier {
     _focusTimer?.cancel();
     final subscription = _authSubscription;
     if (subscription != null) unawaited(subscription.cancel());
+    final reactiveState = _reactiveState;
+    if (reactiveState != null) unawaited(reactiveState.close());
     unawaited(_bluetooth.close());
     super.dispose();
   }

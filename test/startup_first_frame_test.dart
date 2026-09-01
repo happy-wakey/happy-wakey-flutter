@@ -23,6 +23,9 @@ void main() {
       find.byKey(const ValueKey('happy-wakey-startup-loading')),
       findsOneWidget,
     );
+
+    startup.completeError(StateError('test startup shutdown'));
+    await tester.pump();
   });
 
   testWidgets('bounds startup and exposes a fresh retry attempt', (
@@ -61,5 +64,7 @@ void main() {
       find.byKey(const ValueKey('happy-wakey-startup-loading')),
       findsOneWidget,
     );
+
+    await tester.pump(const Duration(milliseconds: 20));
   });
 }

@@ -15,7 +15,8 @@ class NewsScreen extends StatelessWidget {
     final controller = context.watch<AppController>();
     return FeaturePage(
       title: 'Headlines',
-      subtitle: 'A bounded, deduplicated briefing filtered against your own keywords.',
+      subtitle:
+          'A bounded, deduplicated briefing filtered against your own keywords.',
       actions: [
         FilledButton.icon(
           onPressed: controller.refreshNews,
@@ -41,7 +42,8 @@ class NewsScreen extends StatelessWidget {
           EmptyPanel(
             icon: Icons.newspaper,
             title: 'No matching headlines loaded',
-            message: 'Add NEWS_API_KEY as a dart-define, adjust keywords in Settings, and refresh.',
+            message:
+                'Add NEWS_API_KEY as a dart-define, adjust keywords in Settings, and refresh.',
             action: OutlinedButton(
               onPressed: controller.refreshNews,
               child: const Text('Try now'),
@@ -85,8 +87,9 @@ class _HeadlineCard extends StatelessWidget {
                 children: [
                   Text(
                     item.title,
-                    style: Theme.of(context).textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w700),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   if (item.description case final description?) ...[
                     const SizedBox(height: 6),

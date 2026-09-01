@@ -98,7 +98,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final session = controller.session;
     return FeaturePage(
       title: 'Settings and diagnostics',
-      subtitle: 'Preferences are local-first. Credentials are compile-time or encrypted session material and never enter settings JSON.',
+      subtitle:
+          'Preferences are local-first. Credentials are compile-time or encrypted session material and never enter settings JSON.',
       actions: [
         FilledButton.icon(
           onPressed: () => _save(controller),
@@ -306,8 +307,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: SelectableText(
-                    const JsonEncoder.withIndent('  ')
-                        .convert(jsonDecode(controller.machine.toJson())),
+                    const JsonEncoder.withIndent(
+                      '  ',
+                    ).convert(jsonDecode(controller.machine.toJson())),
                     style: const TextStyle(fontFamily: 'monospace'),
                   ),
                 ),

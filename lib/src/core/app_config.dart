@@ -123,9 +123,9 @@ final class AppConfig {
 
   factory AppConfig.fromJson(Map<String, Object?> json) => AppConfig(
     version: json['version'] as String? ?? '1.0.0',
-    weatherLocations: _objects(json['weather_locations'])
-        .map(WeatherLocation.fromJson)
-        .toList(),
+    weatherLocations: _objects(
+      json['weather_locations'],
+    ).map(WeatherLocation.fromJson).toList(),
     stockSymbols: (json['stock_symbols'] as List<Object?>? ?? const [])
         .whereType<String>()
         .toList(),

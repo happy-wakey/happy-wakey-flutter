@@ -57,7 +57,8 @@ final class CalendarService {
         'startDateTime': start.toUtc().toIso8601String(),
         'endDateTime': end.toUtc().toIso8601String(),
         r'$top': '1000',
-        r'$select': 'id,iCalUId,subject,bodyPreview,location,start,end,isAllDay,isCancelled,onlineMeeting,onlineMeetingUrl,webLink',
+        r'$select':
+            'id,iCalUId,subject,bodyPreview,location,start,end,isAllDay,isCancelled,onlineMeeting,onlineMeetingUrl,webLink',
       }),
       headers: {
         'Authorization': 'Bearer $token',

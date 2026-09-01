@@ -75,41 +75,44 @@ void main() {
     },
   );
 
-  test('news service locally filters, validates, deduplicates, and bounds articles', () async {
-    final articles = <Map<String, Object?>>[
-      {
-        'title': 'AI improves weather models',
-        'description': 'A useful technology report',
-        'url': 'https://example.com/one',
-        'urlToImage': 'javascript:alert(1)',
-        'publishedAt': '2026-08-24T12:00:00Z',
-        'source': {'name': 'Example'},
-      },
-      {
-        'title': 'Duplicate',
-        'url': 'https://example.com/one',
-        'source': {'name': 'Example'},
-      },
-      {
-        'title': 'Unrelated sports result',
-        'url': 'https://example.com/two',
-        'source': {'name': 'Example'},
-      },
-      {
-        'title': 'AI on an unsafe URL',
-        'url': 'file:///private/data',
-        'source': {'name': 'Example'},
-      },
-    ];
-    final api = ApiClient(
-      client: MockClient((request) async {
-        expect(request.headers['X-Api-Key'], 'news-key');
-        return http.Response(jsonEncode({'articles': articles}), 200);
-      }),
-    );
-    final result = await NewsService(api, apiKey: 'news-key').fetch(['AI']);
-    expect(result, hasLength(1));
-    expect(result.single.title, 'AI improves weather models');
-    expect(result.single.imageUrl, isNull);
-  });
+  test(
+    'news service locally filters, validates, deduplicates, and bounds articles',
+    () async {
+      final articles = <Map<String, Object?>>[
+        {
+          'title': 'AI improves weather models',
+          'description': 'A useful technology report',
+          'url': 'https://example.com/one',
+          'urlToImage': 'javascript:alert(1)',
+          'publishedAt': '2026-08-24T12:00:00Z',
+          'source': {'name': 'Example'},
+        },
+        {
+          'title': 'Duplicate',
+          'url': 'https://example.com/one',
+          'source': {'name': 'Example'},
+        },
+        {
+          'title': 'Unrelated sports result',
+          'url': 'https://example.com/two',
+          'source': {'name': 'Example'},
+        },
+        {
+          'title': 'AI on an unsafe URL',
+          'url': 'file:///private/data',
+          'source': {'name': 'Example'},
+        },
+      ];
+      final api = ApiClient(
+        client: MockClient((request) async {
+          expect(request.headers['X-Api-Key'], 'news-key');
+          return http.Response(jsonEncode({'articles': articles}), 200);
+        }),
+      );
+      final result = await NewsService(api, apiKey: 'news-key').fetch(['AI']);
+      expect(result, hasLength(1));
+      expect(result.single.title, 'AI improves weather models');
+      expect(result.single.imageUrl, isNull);
+    },
+  );
 }

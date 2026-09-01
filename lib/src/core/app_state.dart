@@ -425,8 +425,9 @@ final class AppMachine {
     for (final lane in OperationLane.values.where(
       (lane) => lane.requiresAuthentication,
     )) {
-      _lanes[lane] = laneSnapshot(lane)
-          .copyWith(phase: LanePhase.idle, activeToken: 0);
+      _lanes[lane] = laneSnapshot(
+        lane,
+      ).copyWith(phase: LanePhase.idle, activeToken: 0);
     }
     return const TransitionOutcome.applied();
   }

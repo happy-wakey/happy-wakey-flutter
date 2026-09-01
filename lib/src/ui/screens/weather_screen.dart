@@ -15,7 +15,8 @@ class WeatherScreen extends StatelessWidget {
     final controller = context.watch<AppController>();
     return FeaturePage(
       title: 'Weather',
-      subtitle: 'Live conditions and a seven-day Open-Meteo forecast for every saved location.',
+      subtitle:
+          'Live conditions and a seven-day Open-Meteo forecast for every saved location.',
       actions: [
         FilledButton.icon(
           onPressed: controller.refreshWeather,
@@ -33,7 +34,8 @@ class WeatherScreen extends StatelessWidget {
           EmptyPanel(
             icon: Icons.cloud_outlined,
             title: 'No live weather yet',
-            message: 'Refresh for current conditions. Locations can be changed in Settings.',
+            message:
+                'Refresh for current conditions. Locations can be changed in Settings.',
             action: OutlinedButton(
               onPressed: controller.refreshWeather,
               child: const Text('Load weather'),

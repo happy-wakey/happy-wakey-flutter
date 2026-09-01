@@ -13,7 +13,8 @@ class StocksScreen extends StatelessWidget {
     final controller = context.watch<AppController>();
     return FeaturePage(
       title: 'Markets',
-      subtitle: 'A deliberately small watchlist powered by Finnhub, with keys supplied only at build time.',
+      subtitle:
+          'A deliberately small watchlist powered by Finnhub, with keys supplied only at build time.',
       actions: [
         FilledButton.icon(
           onPressed: controller.refreshStocks,
@@ -31,7 +32,8 @@ class StocksScreen extends StatelessWidget {
           EmptyPanel(
             icon: Icons.candlestick_chart,
             title: 'No market quotes loaded',
-            message: 'Add FINNHUB_API_KEY as a dart-define, then refresh your watchlist.',
+            message:
+                'Add FINNHUB_API_KEY as a dart-define, then refresh your watchlist.',
             action: OutlinedButton(
               onPressed: controller.refreshStocks,
               child: const Text('Try now'),

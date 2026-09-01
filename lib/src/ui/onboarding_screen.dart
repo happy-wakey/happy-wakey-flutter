@@ -85,9 +85,8 @@ class _Progress extends StatelessWidget {
         children: [
           Text(
             'Happy Wakey',
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+            style: Theme.of(context).textTheme.headlineSmall
+                ?.copyWith(fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 8),
           Text('Setup progress', style: Theme.of(context).textTheme.labelLarge),
@@ -139,9 +138,8 @@ class _StepContent extends StatelessWidget {
       const SizedBox(height: 24),
       Text(
         title,
-        style: Theme.of(
-          context,
-        ).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w800),
+        style: Theme.of(context).textTheme.displaySmall
+            ?.copyWith(fontWeight: FontWeight.w800),
       ),
       const SizedBox(height: 14),
       Text(description, style: Theme.of(context).textTheme.titleMedium),

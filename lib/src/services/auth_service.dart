@@ -59,8 +59,7 @@ final class AuthService {
       AuthProvider.azure => OAuthProvider.azure,
     };
     final scopes = switch (provider) {
-      AuthProvider.google =>
-        'openid email profile https://www.googleapis.com/auth/calendar.readonly',
+      AuthProvider.google => 'openid email profile https://www.googleapis.com/auth/calendar.readonly',
       AuthProvider.azure =>
         'openid email profile offline_access Calendars.Read',
       AuthProvider.apple => 'name email',

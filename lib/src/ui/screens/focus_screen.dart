@@ -23,8 +23,7 @@ class FocusScreen extends StatelessWidget {
         .padLeft(2, '0');
     return FeaturePage(
       title: 'Focus',
-      subtitle:
-          'A second explicit state machine governs start, pause, resume, completion, and reset.',
+      subtitle: 'A second explicit state machine governs start, pause, resume, completion, and reset.',
       children: [
         Center(
           child: ConstrainedBox(

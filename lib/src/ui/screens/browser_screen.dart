@@ -12,8 +12,7 @@ class BrowserScreen extends StatelessWidget {
     final controller = context.watch<AppController>();
     return FeaturePage(
       title: 'Useful links',
-      subtitle:
-          'Open trusted web destinations in the system browser; embedded credentials and unsafe schemes are rejected.',
+      subtitle: 'Open trusted web destinations in the system browser; embedded credentials and unsafe schemes are rejected.',
       children: [
         Wrap(
           spacing: 12,

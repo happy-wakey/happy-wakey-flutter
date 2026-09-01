@@ -81,8 +81,7 @@ class HappyWakeyBootstrapApp extends StatefulWidget {
   final Duration startupTimeout;
 
   @override
-  State<HappyWakeyBootstrapApp> createState() =>
-      _HappyWakeyBootstrapAppState();
+  State<HappyWakeyBootstrapApp> createState() => _HappyWakeyBootstrapAppState();
 }
 
 enum _StartupPhase { starting, ready, failed }

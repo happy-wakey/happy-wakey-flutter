@@ -15,8 +15,7 @@ class DevicesScreen extends StatelessWidget {
     final connected = controller.connectedBluetoothDeviceId;
     return FeaturePage(
       title: 'Bluetooth devices',
-      subtitle:
-          'Discover only Happy Wakey BLE peripherals and send bounded, credential-free alarm commands.',
+      subtitle: 'Discover only Happy Wakey BLE peripherals and send bounded, credential-free alarm commands.',
       actions: [
         FilledButton.icon(
           onPressed: !controller.bluetoothSupported || busy
@@ -36,15 +35,13 @@ class DevicesScreen extends StatelessWidget {
           const EmptyPanel(
             icon: Icons.bluetooth_disabled,
             title: 'Bluetooth Low Energy is unavailable',
-            message:
-                'Use a device with a supported Bluetooth adapter and grant access in system settings.',
+            message: 'Use a device with a supported Bluetooth adapter and grant access in system settings.',
           )
         else if (controller.bluetoothDevices.isEmpty)
           EmptyPanel(
             icon: Icons.alarm,
             title: 'No Happy Wakey devices discovered',
-            message:
-                'Power on a compatible alarm device, keep it nearby, and scan again.',
+            message: 'Power on a compatible alarm device, keep it nearby, and scan again.',
             action: OutlinedButton.icon(
               onPressed: busy ? null : controller.scanBluetooth,
               icon: const Icon(Icons.bluetooth_searching),

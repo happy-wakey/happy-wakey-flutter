@@ -9,10 +9,8 @@ final class WeatherService {
     final uri = Uri.https('api.open-meteo.com', '/v1/forecast', {
       'latitude': location.latitude.toString(),
       'longitude': location.longitude.toString(),
-      'current':
-          'temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,is_day',
-      'daily':
-          'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
+      'current': 'temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,is_day',
+      'daily': 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max',
       'temperature_unit': 'fahrenheit',
       'wind_speed_unit': 'mph',
       'precipitation_unit': 'inch',

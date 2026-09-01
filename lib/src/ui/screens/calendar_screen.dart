@@ -16,8 +16,7 @@ class CalendarScreen extends StatelessWidget {
     final agenda = controller.agenda;
     return FeaturePage(
       title: 'Calendar command center',
-      subtitle:
-          'A normalized week across Google or Microsoft, with conflicts and reminder scheduling.',
+      subtitle: 'A normalized week across Google or Microsoft, with conflicts and reminder scheduling.',
       actions: [
         FilledButton.icon(
           onPressed: controller.machine.isSignedIn
@@ -72,8 +71,7 @@ class CalendarScreen extends StatelessWidget {
           const EmptyPanel(
             icon: Icons.login,
             title: 'Sign in to read your calendar',
-            message:
-                'Google and Microsoft logins request read-only calendar scopes.',
+            message: 'Google and Microsoft logins request read-only calendar scopes.',
           )
         else if (controller.calendarEvents.isEmpty)
           EmptyPanel(

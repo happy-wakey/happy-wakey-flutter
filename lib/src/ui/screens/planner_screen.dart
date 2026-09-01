@@ -33,8 +33,7 @@ class _PlannerScreenState extends State<PlannerScreen> {
     final tasks = controller.config.tasks;
     return FeaturePage(
       title: 'Daily planner',
-      subtitle:
-          'A focused local-first list—small enough to finish, durable enough to survive a restart.',
+      subtitle: 'A focused local-first list—small enough to finish, durable enough to survive a restart.',
       children: [
         Card(
           child: Padding(

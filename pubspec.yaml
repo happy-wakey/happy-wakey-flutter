@@ -46,7 +46,9 @@ dependencies:
   collection: ^1.19.1
   rxdart: ^0.28.0
   universal_ble: 2.1.1
-  health: ^13.3.2
+  # 13.3.1 keeps the iOS dependency on device_info_plus 12.x, whose
+  # deployment SDK is compatible with the hosted Xcode image.
+  health: 13.3.1
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +60,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+# device_info_plus 12.4+ references the iOS 26.1 Vision selector and cannot
+# compile on the Xcode image used by the release build until that SDK lands.
+dependency_overrides:
+  device_info_plus: 12.3.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -101,7 +101,12 @@ void main() {
       final id = kDesktopDestinations[index].id;
       if (id == 'home') {
         expect(find.textContaining('Good '), findsOneWidget);
-      } else if (const {'weather', 'markets', 'focus', 'briefing'}.contains(id)) {
+      } else if (const {
+        'weather',
+        'markets',
+        'focus',
+        'briefing',
+      }.contains(id)) {
         expect(find.text(_visibleTitles[id]!), findsWidgets);
       } else {
         expect(find.text(_visibleTitles[id]!), findsOneWidget);

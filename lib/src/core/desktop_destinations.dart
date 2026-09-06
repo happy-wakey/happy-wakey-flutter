@@ -17,4 +17,5 @@ const kDesktopDestinations = <DesktopDestination>[
   DesktopDestination(id: 'devices', label: 'Devices'),
   DesktopDestination(id: 'browser', label: 'Browser'),
   DesktopDestination(id: 'settings', label: 'Settings'),
+  DesktopDestination(id: 'briefing', label: 'Morning brief'),
 ];

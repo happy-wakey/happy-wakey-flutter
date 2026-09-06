@@ -6,7 +6,7 @@ small, total transition system; platform integrations sit outside it.
 ## Control plane
 
 `lib/src/core/app_state.dart` owns readiness, authentication, onboarding, and
-nine effect lanes. Its mutable fields are private. `dispatch` copies the
+twelve effect lanes. Its mutable fields are private. `dispatch` copies the
 machine, applies one event to the candidate, validates all invariants, and only
 then replaces the live state. Unsupported requests are explicit rejections and
 late completions are explicit stale stutters.
@@ -37,6 +37,12 @@ idle → running ↔ paused → completed, with reset from every phase.
   response bodies to 2 MiB, bounds error text, and rejects malformed JSON.
 - Provider services normalize remote objects into immutable app models before
   they reach widgets.
+- `InboxService` reads a bounded recent window from Gmail or Microsoft Graph;
+  `DirectMessageService` accepts only a short-lived Supabase bearer and talks
+  to the optional platform gateway, never to social providers directly.
+- `HealthService` requests read-only Apple HealthKit or Google Health Connect
+  access on supported mobile platforms, aggregates sleep and biometrics in
+  memory, and discards raw records after each refresh.
 - Links permit only HTTP and HTTPS and open in the system browser.
 - `UniversalHappyWakeyBluetoothService` scans only the Happy Wakey service UUID,
   validates the product service and writable command characteristic after

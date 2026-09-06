@@ -8,6 +8,9 @@ import '../services/auth_service.dart';
 import '../services/bluetooth_service.dart';
 import '../services/calendar_service.dart';
 import '../services/cloud_reminder_service.dart';
+import '../services/direct_message_service.dart';
+import '../services/health_service.dart';
+import '../services/inbox_service.dart';
 import '../services/news_service.dart';
 import '../services/notification_service.dart';
 import '../services/stock_service.dart';
@@ -34,6 +37,9 @@ final class AppController extends ChangeNotifier {
     required this._calendar,
     required this._notifications,
     required this._cloudReminders,
+    required this._inbox,
+    required this._directMessages,
+    required this._health,
   });
 
   static Future<AppController> bootstrap({
@@ -47,6 +53,9 @@ final class AppController extends ChangeNotifier {
     required CalendarService calendar,
     required NotificationService notifications,
     required CloudReminderService cloudReminders,
+    InboxService? inbox,
+    DirectMessageService? directMessages,
+    HealthService? health,
   }) async {
     final config = (await configStore.load()).sanitized();
     final machine = AppMachine(
@@ -66,6 +75,9 @@ final class AppController extends ChangeNotifier {
       calendar: calendar,
       notifications: notifications,
       cloudReminders: cloudReminders,
+      inbox: inbox,
+      directMessages: directMessages,
+      health: health,
     );
     controller._reactiveState = ReactiveAppState(
       projectReactiveSnapshot(machine: machine, status: controller._status),
@@ -103,6 +115,9 @@ final class AppController extends ChangeNotifier {
   final CalendarService _calendar;
   final NotificationService _notifications;
   final CloudReminderService _cloudReminders;
+  final InboxService? _inbox;
+  final DirectMessageService? _directMessages;
+  final HealthService? _health;
   final FocusMachine _focusMachine = FocusMachine();
   ReactiveAppState? _reactiveState;
 
@@ -116,6 +131,11 @@ final class AppController extends ChangeNotifier {
   List<WeatherData> _weatherData = const [];
   List<StockQuote> _stockData = const [];
   List<NewsItem> _newsData = const [];
+  List<InboxItem> _inboxData = const [];
+  List<DirectMessage> _directMessageData = const [];
+  HealthSnapshot _healthData = const HealthSnapshot.unavailable(
+    'Health data has not been connected',
+  );
   List<HappyWakeyBleDevice> _bluetoothDevices = const [];
   bool _bluetoothSupported = false;
   String? _connectedBluetoothDeviceId;
@@ -131,6 +151,9 @@ final class AppController extends ChangeNotifier {
   List<WeatherData> get weatherData => _weatherData;
   List<StockQuote> get stockData => _stockData;
   List<NewsItem> get newsData => _newsData;
+  List<InboxItem> get inboxData => _inboxData;
+  List<DirectMessage> get directMessageData => _directMessageData;
+  HealthSnapshot get healthData => _healthData;
   List<HappyWakeyBleDevice> get bluetoothDevices => _bluetoothDevices;
   bool get bluetoothSupported => _bluetoothSupported;
   String? get connectedBluetoothDeviceId => _connectedBluetoothDeviceId;
@@ -188,6 +211,8 @@ final class AppController extends ChangeNotifier {
     _cloudReminders.clearSession();
     _calendarEvents = const [];
     _agenda = const CalendarAgenda.empty();
+    _inboxData = const [];
+    _directMessageData = const [];
     _cloudReminderPending = 0;
     _setStatus('Signed out');
   }
@@ -211,13 +236,30 @@ final class AppController extends ChangeNotifier {
       _cloudReminders.clearSession();
       _calendarEvents = const [];
       _agenda = const CalendarAgenda.empty();
+      _inboxData = const [];
+      _directMessageData = const [];
       _setStatus('Signed out');
     }
   }
 
   Future<void> refreshAll() async {
-    await Future.wait([refreshWeather(), refreshStocks(), refreshNews()]);
+    await Future.wait([
+      refreshWeather(),
+      refreshStocks(),
+      refreshNews(),
+      refreshInbox(),
+      refreshDirectMessages(),
+      refreshHealth(),
+    ]);
     if (_machine.isSignedIn) await refreshCalendar();
+  }
+
+  Future<void> refreshBriefing({bool requestHealthAccess = false}) async {
+    await Future.wait([
+      refreshInbox(),
+      refreshDirectMessages(),
+      refreshHealth(requestAccess: requestHealthAccess),
+    ]);
   }
 
   Future<void> scanBluetooth() async {
@@ -374,6 +416,89 @@ final class AppController extends ChangeNotifier {
       }
     }
   }
+
+  Future<void> refreshInbox() async {
+    final token = _beginLane(OperationLane.inbox);
+    if (token == null) return;
+    final active = session;
+    final service = _inbox;
+    if (active == null || service == null) {
+      _finishLane(OperationLane.inbox, token, succeeded: false);
+      return _setStatus(
+        active == null
+            ? 'Sign in to read important email'
+            : 'Inbox integration is not configured for this build',
+      );
+    }
+    try {
+      final data = await service.fetch(
+        provider: active.provider,
+        providerToken: active.providerToken,
+      );
+      if (!_finishLane(OperationLane.inbox, token, succeeded: true)) return;
+      _inboxData = data;
+      _setStatus('Inbox updated: ${data.length} important message(s)');
+    } catch (error) {
+      if (_finishLane(OperationLane.inbox, token, succeeded: false)) {
+        _setStatus('Inbox refresh failed: $error');
+      }
+    }
+  }
+
+  Future<void> refreshDirectMessages() async {
+    final token = _beginLane(OperationLane.directMessages);
+    if (token == null) return;
+    final active = session;
+    final service = _directMessages;
+    if (active == null || service == null) {
+      _finishLane(OperationLane.directMessages, token, succeeded: false);
+      return _setStatus(
+        active == null
+            ? 'Sign in to read direct messages'
+            : 'Direct-message integration is not configured for this build',
+      );
+    }
+    try {
+      final data = await service.fetch(accessToken: active.accessToken);
+      if (!_finishLane(OperationLane.directMessages, token, succeeded: true)) {
+        return;
+      }
+      _directMessageData = data;
+      _setStatus('Direct messages updated: ${data.length}');
+    } catch (error) {
+      if (_finishLane(OperationLane.directMessages, token, succeeded: false)) {
+        _setStatus('Direct-message refresh failed: $error');
+      }
+    }
+  }
+
+  Future<void> refreshHealth({bool requestAccess = false}) async {
+    final token = _beginLane(OperationLane.health);
+    if (token == null) return;
+    final service = _health;
+    if (service == null) {
+      _finishLane(OperationLane.health, token, succeeded: false);
+      return _setStatus('Health integration is not configured for this build');
+    }
+    try {
+      final data = await service.readToday(requestAccess: requestAccess);
+      if (!_finishLane(
+        OperationLane.health,
+        token,
+        succeeded: data.supported && data.authorized,
+      )) {
+        return;
+      }
+      _healthData = data;
+      _setStatus(data.message);
+    } catch (error) {
+      if (_finishLane(OperationLane.health, token, succeeded: false)) {
+        _setStatus('Health refresh failed: $error');
+      }
+    }
+  }
+
+  Future<void> requestHealthAccess() => refreshHealth(requestAccess: true);
 
   Future<void> refreshCalendar() async {
     final token = _beginLane(OperationLane.calendar);

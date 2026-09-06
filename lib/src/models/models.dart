@@ -258,3 +258,153 @@ final class DailyTask {
     completed: json['completed'] as bool? ?? false,
   );
 }
+
+/// A bounded, read-only message promoted into the morning brief.
+@immutable
+final class InboxItem {
+  const InboxItem({
+    required this.id,
+    required this.source,
+    required this.senderName,
+    required this.senderAddress,
+    required this.subject,
+    required this.preview,
+    required this.receivedAt,
+    required this.unread,
+    required this.important,
+    this.url,
+  });
+
+  final String id;
+  final String source;
+  final String senderName;
+  final String senderAddress;
+  final String subject;
+  final String preview;
+  final DateTime receivedAt;
+  final bool unread;
+  final bool important;
+  final Uri? url;
+
+  int get priority => (important ? 2 : 0) + (unread ? 1 : 0);
+}
+
+/// A read-only direct message from the configured social/work chat gateway.
+@immutable
+final class DirectMessage {
+  const DirectMessage({
+    required this.id,
+    required this.source,
+    required this.conversation,
+    required this.senderName,
+    required this.preview,
+    required this.receivedAt,
+    required this.unread,
+    this.url,
+  });
+
+  final String id;
+  final String source;
+  final String conversation;
+  final String senderName;
+  final String preview;
+  final DateTime receivedAt;
+  final bool unread;
+  final Uri? url;
+}
+
+@immutable
+final class SleepSummary {
+  const SleepSummary({
+    required this.date,
+    required this.durationMinutes,
+    required this.deepMinutes,
+    required this.remMinutes,
+    required this.awakeMinutes,
+    required this.source,
+    this.score,
+  });
+
+  final DateTime date;
+  final int durationMinutes;
+  final int deepMinutes;
+  final int remMinutes;
+  final int awakeMinutes;
+  final String source;
+  final double? score;
+
+  String get durationLabel {
+    final hours = durationMinutes ~/ 60;
+    final minutes = durationMinutes % 60;
+    return minutes == 0 ? '${hours}h' : '${hours}h ${minutes}m';
+  }
+}
+
+@immutable
+final class HealthMetric {
+  const HealthMetric({
+    required this.kind,
+    required this.value,
+    required this.unit,
+    required this.measuredAt,
+    required this.source,
+  });
+
+  final String kind;
+  final double value;
+  final String unit;
+  final DateTime measuredAt;
+  final String source;
+}
+
+@immutable
+final class HealthSnapshot {
+  const HealthSnapshot({
+    required this.supported,
+    required this.authorized,
+    required this.message,
+    required this.metrics,
+    required this.source,
+    this.sleep,
+  });
+
+  const HealthSnapshot.unavailable(this.message)
+    : supported = false,
+      authorized = false,
+      metrics = const [],
+      source = 'none',
+      sleep = null;
+
+  final bool supported;
+  final bool authorized;
+  final String message;
+  final List<HealthMetric> metrics;
+  final String source;
+  final SleepSummary? sleep;
+
+  HealthMetric? metric(String kind) {
+    for (final value in metrics) {
+      if (value.kind == kind) return value;
+    }
+    return null;
+  }
+}
+
+@immutable
+final class MorningBriefing {
+  const MorningBriefing({
+    required this.generatedAt,
+    required this.inbox,
+    required this.directMessages,
+    required this.health,
+  });
+
+  final DateTime generatedAt;
+  final List<InboxItem> inbox;
+  final List<DirectMessage> directMessages;
+  final HealthSnapshot health;
+
+  int get unreadInboxCount => inbox.where((item) => item.unread).length;
+  int get unreadMessageCount =>
+      directMessages.where((item) => item.unread).length;
+}

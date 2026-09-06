@@ -18,7 +18,8 @@ its native host.
 ## What is included
 
 - Google, Apple, and Microsoft identity through optional Supabase OAuth.
-- Read-only Google Calendar and Microsoft Graph calendar normalization.
+- Read-only Google Calendar and Microsoft Graph calendar normalization, plus
+  read-only Gmail and Microsoft Graph inbox triage.
 - Today/weekly agenda summaries, meeting load, overlap detection, join links,
   local reminders, and optional shared-auth cloud reminders.
 - Live Open-Meteo conditions and five-day forecasts.
@@ -26,6 +27,11 @@ its native host.
   responses and local keyword enforcement.
 - Persistent local preferences, onboarding, bookmarks, planner tasks, and a
   guarded pause/resume focus timer.
+- A prioritized Morning brief that combines important unread mail, consented
+  direct messages from the platform gateway, sleep stages, steps, active
+  energy, heart rate, resting heart rate, and blood oxygen.
+- Apple HealthKit and Google Health Connect adapters request read access only;
+  raw health records stay on the device and are never included in sync.
 - Native Bluetooth Low Energy discovery and alarm previews on Android, iOS,
   Linux, macOS, Windows, and compatible web browsers.
 - Material 3 layouts that move between a navigation drawer on mobile and a
@@ -56,7 +62,8 @@ flutter run \
   --dart-define=SUPABASE_ANON_KEY=YOUR_PUBLISHABLE_KEY \
   --dart-define=FINNHUB_API_KEY=LOCAL_DEVELOPMENT_KEY \
   --dart-define=NEWS_API_KEY=LOCAL_DEVELOPMENT_KEY \
-  --dart-define=HAPPY_WAKEY_PLATFORM_URL=https://platform.example.com
+  --dart-define=HAPPY_WAKEY_PLATFORM_URL=https://platform.example.com \
+  --dart-define=HAPPY_WAKEY_GATEWAY_URL=https://gateway.example.com
 ```
 
 Available service defines are documented in
@@ -90,7 +97,7 @@ properties, assumptions, and the proof boundary are in
 ## Architecture
 
 `AppMachine` is the sole authority for application readiness,
-authentication, onboarding, and nine asynchronous operation lanes. Widgets
+authentication, onboarding, and twelve asynchronous operation lanes. Widgets
 render snapshots and send typed events. `AppController` performs platform and
 network effects, but results can commit only through the machine with their
 original operation token.

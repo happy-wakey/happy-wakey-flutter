@@ -66,6 +66,21 @@ class HomeScreen extends StatelessWidget {
               detail: '${controller.config.tasks.length - openTasks} completed',
               icon: Icons.check_circle_outline,
             ),
+            SummaryCard(
+              label: 'Morning inbox',
+              value:
+                  '${controller.inboxData.where((item) => item.unread).length}',
+              detail: 'important unread messages',
+              icon: Icons.mark_email_unread_outlined,
+            ),
+            SummaryCard(
+              label: 'Sleep',
+              value: controller.healthData.sleep?.durationLabel ?? '—',
+              detail: controller.healthData.sleep == null
+                  ? 'Connect health data'
+                  : 'last sleep result',
+              icon: Icons.bedtime_outlined,
+            ),
           ],
         ),
         const SizedBox(height: 22),
@@ -97,6 +112,12 @@ class HomeScreen extends StatelessWidget {
               icon: Icons.bluetooth_searching,
               title: 'Connect an alarm device',
               detail: 'Native BLE discovery and safe previews',
+            ),
+            _JumpCard(
+              destination: 10,
+              icon: Icons.wb_sunny_outlined,
+              title: 'Read the morning brief',
+              detail: 'Email, conversations, sleep, and biometrics',
             ),
           ],
         ),

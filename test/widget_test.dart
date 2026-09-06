@@ -42,6 +42,7 @@ const _visibleTitles = <String, String>{
   'devices': 'Bluetooth devices',
   'browser': 'Useful links',
   'settings': 'Settings and diagnostics',
+  'briefing': 'Morning brief',
 };
 
 void main() {
@@ -88,7 +89,7 @@ void main() {
     await controller.onboardingFinish();
     await tester.pumpAndSettle();
 
-    expect(kDesktopDestinations, hasLength(10));
+    expect(kDesktopDestinations, hasLength(11));
     controller.selectDestination(-1);
     controller.selectDestination(99);
     expect(controller.selectedDestination, 0);
@@ -100,7 +101,7 @@ void main() {
       final id = kDesktopDestinations[index].id;
       if (id == 'home') {
         expect(find.textContaining('Good '), findsOneWidget);
-      } else if (const {'weather', 'markets', 'focus'}.contains(id)) {
+      } else if (const {'weather', 'markets', 'focus', 'briefing'}.contains(id)) {
         expect(find.text(_visibleTitles[id]!), findsWidgets);
       } else {
         expect(find.text(_visibleTitles[id]!), findsOneWidget);

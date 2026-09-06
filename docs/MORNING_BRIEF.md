@@ -40,7 +40,8 @@ sections:
 2. Direct messages from the optional Happy Wakey platform gateway. The gateway
    owns provider OAuth and consent for Slack, Discord, Teams, and other
    approved sources. The Flutter client sends only the short-lived Supabase
-   bearer and accepts at most 20 bounded records.
+   bearer to `GET /v1/messages/digest`, flattens the canonical per-platform
+   threads, and accepts at most 20 bounded records.
 3. Sleep and biometrics from Apple HealthKit or Google Health Connect. Read
    access is requested on demand. Sleep duration/stages, steps, active energy,
    heart rate, resting heart rate, and blood oxygen are aggregated in memory;

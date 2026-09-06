@@ -115,31 +115,39 @@ void main() {
     () async {
       final api = ApiClient(
         client: MockClient((request) async {
-          expect(request.url.path, '/v1/briefing/direct-messages');
+          expect(request.url.path, '/v1/messages/digest');
           expect(request.headers['Authorization'], 'Bearer supabase-token');
           return http.Response(
             jsonEncode({
-              'items': [
+              'platforms': [
                 {
-                  'id': 'dm-1',
-                  'source': 'slack',
-                  'conversation': 'Morning room',
-                  'senderName': 'Morgan',
-                  'preview': 'x' * 500,
-                  'receivedAt': '2026-05-05T09:00:00Z',
-                  'unread': true,
-                  'url': 'https://slack.com/archives/C1/p1',
+                  'platform': 'slack',
+                  'threads': [
+                    {
+                      'thread_ref': 'dm-1',
+                      'counterpart_display': 'Morning room',
+                      'preview': 'x' * 500,
+                      'last_message_at': '2026-05-05T09:00:00Z',
+                      'unread_count': 1,
+                      'deep_link': 'https://slack.com/archives/C1/p1',
+                    },
+                    {
+                      'thread_ref': 'dm-1',
+                      'last_message_at': '2026-05-05T08:00:00Z',
+                      'unread_count': 0,
+                    },
+                  ],
                 },
                 {
-                  'id': 'dm-1',
-                  'source': 'slack',
-                  'receivedAt': '2026-05-05T08:00:00Z',
-                },
-                {
-                  'id': 'dm-2',
-                  'source': 'discord',
-                  'receivedAt': '2026-05-05T07:00:00Z',
-                  'url': 'file:///private/message',
+                  'platform': 'discord',
+                  'threads': [
+                    {
+                      'thread_ref': 'dm-2',
+                      'last_message_at': '2026-05-05T07:00:00Z',
+                      'unread_count': 0,
+                      'deep_link': 'file:///private/message',
+                    },
+                  ],
                 },
               ],
             }),

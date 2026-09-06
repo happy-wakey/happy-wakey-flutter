@@ -37,17 +37,13 @@ final class DirectMessageService {
     if (base == null || !UrlSafety.isSafeHttpUri(base)) {
       throw const ApiException('Direct-message gateway URL is not safe');
     }
-    final uri = base.resolve('/v1/briefing/direct-messages');
+    final uri = base.resolve('/v1/messages/digest');
     final value = await _api.getJson(
       uri,
       headers: {'Authorization': 'Bearer $accessToken'},
       service: 'Direct-message gateway',
     );
-    final rows = value is Map && value['items'] is List
-        ? (value['items'] as List).whereType<Map>()
-        : value is List
-        ? value.whereType<Map>()
-        : const <Map>[];
+    final rows = _digestRows(value);
     final seen = <String>{};
     final items =
         rows
@@ -61,19 +57,61 @@ final class DirectMessageService {
   }
 }
 
+Iterable<Map> _digestRows(Object? value) sync* {
+  if (value is Map && value['platforms'] is List) {
+    for (final platform in (value['platforms'] as List).whereType<Map>()) {
+      final source = platform['platform'];
+      final threads = platform['threads'];
+      if (threads is! List) continue;
+      for (final thread in threads.whereType<Map>()) {
+        final unreadCount = thread['unread_count'] is num
+            ? (thread['unread_count'] as num).toInt()
+            : int.tryParse(thread['unread_count']?.toString() ?? '') ?? 0;
+        yield {
+          'id': thread['thread_ref'],
+          'source': source,
+          'conversation': thread['counterpart_display'],
+          'senderName': thread['counterpart_display'],
+          'preview': thread['preview'],
+          'receivedAt': thread['last_message_at'],
+          'unread': unreadCount > 0,
+          'url': thread['deep_link'],
+        };
+      }
+    }
+    return;
+  }
+  if (value is Map && value['items'] is List) {
+    yield* (value['items'] as List).whereType<Map>();
+  } else if (value is List) {
+    yield* value.whereType<Map>();
+  }
+}
+
 DirectMessage? _parse(Map raw) {
-  final id = _bounded(raw['id'], 180);
-  final received = DateTime.tryParse(raw['receivedAt']?.toString() ?? '');
+  final id = _bounded(raw['id'] ?? raw['thread_ref'], 180);
+  final received = DateTime.tryParse(
+    (raw['receivedAt'] ?? raw['last_message_at'])?.toString() ?? '',
+  );
   if (id.isEmpty || received == null) return null;
-  final url = Uri.tryParse(raw['url']?.toString() ?? '');
+  final unreadCount = raw['unread_count'] is num
+      ? (raw['unread_count'] as num).toInt()
+      : int.tryParse(raw['unread_count']?.toString() ?? '') ?? 0;
+  final url = Uri.tryParse((raw['url'] ?? raw['deep_link'])?.toString() ?? '');
   return DirectMessage(
     id: id,
     source: _bounded(raw['source'], 40),
-    conversation: _bounded(raw['conversation'] ?? raw['channel'], 120),
-    senderName: _bounded(raw['senderName'] ?? raw['sender'], 96),
+    conversation: _bounded(
+      raw['conversation'] ?? raw['channel'] ?? raw['counterpart_display'],
+      120,
+    ),
+    senderName: _bounded(
+      raw['senderName'] ?? raw['sender'] ?? raw['counterpart_display'],
+      96,
+    ),
     preview: _bounded(raw['preview'] ?? raw['text'], 320),
     receivedAt: received.toLocal(),
-    unread: raw['unread'] == true,
+    unread: raw['unread'] == true || unreadCount > 0,
     url: url != null && UrlSafety.isSafeHttpUri(url) ? url : null,
   );
 }

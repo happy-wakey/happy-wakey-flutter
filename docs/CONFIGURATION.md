@@ -24,10 +24,10 @@ unread messages; the app never marks, moves, deletes, or sends mail.
 
 The direct-message gateway is intentionally server-mediated. It should perform
 provider OAuth and consent for Slack, Discord, Teams, or other approved sources,
-then expose the bounded read-only response at
-`GET /v1/briefing/direct-messages` with the user's Supabase bearer. The Flutter
-client never receives provider tokens and treats links as untrusted until they
-pass the same HTTP(S)-only URL guard.
+then expose the versioned `message-digest` response at
+`GET /v1/messages/digest` with the user's Supabase bearer. The Flutter client
+never receives provider tokens and treats links as untrusted until they pass
+the same HTTP(S)-only URL guard.
 
 On iOS, HealthKit requires the checked-in HealthKit capability and iOS 15 or
 later. On Android, Health Connect permissions are requested at runtime. Health

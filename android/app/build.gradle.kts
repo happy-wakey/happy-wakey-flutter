@@ -17,7 +17,9 @@ android {
 
     defaultConfig {
         applicationId = "com.happywakey.happy_wakey"
-        minSdk = flutter.minSdkVersion
+        // Health Connect requires API 26; older Android builds retain the
+        // unsupported-platform empty state through the web/desktop targets.
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

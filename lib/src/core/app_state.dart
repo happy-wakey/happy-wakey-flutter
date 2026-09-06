@@ -57,6 +57,9 @@ enum OperationLane {
   desktopNotification,
   cloudNotification,
   cloudReminderSync,
+  inbox,
+  directMessages,
+  health,
 }
 
 extension OperationLaneX on OperationLane {
@@ -64,7 +67,9 @@ extension OperationLaneX on OperationLane {
     OperationLane.calendar ||
     OperationLane.onboardingHydration ||
     OperationLane.cloudNotification ||
-    OperationLane.cloudReminderSync => true,
+    OperationLane.cloudReminderSync ||
+    OperationLane.inbox ||
+    OperationLane.directMessages => true,
     _ => false,
   };
 }

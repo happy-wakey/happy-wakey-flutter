@@ -60,9 +60,9 @@ final class AuthService {
     };
     final scopes = switch (provider) {
       AuthProvider.google =>
-        'openid email profile https://www.googleapis.com/auth/calendar.readonly',
+        'openid email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly',
       AuthProvider.azure =>
-        'openid email profile offline_access Calendars.Read',
+        'openid email profile offline_access Calendars.Read Mail.Read',
       AuthProvider.apple => 'name email',
     };
     final launched = await client.auth.signInWithOAuth(

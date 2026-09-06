@@ -8,6 +8,7 @@ import 'screens/calendar_screen.dart';
 import 'screens/devices_screen.dart';
 import 'screens/focus_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/morning_brief_screen.dart';
 import 'screens/news_screen.dart';
 import 'screens/planner_screen.dart';
 import 'screens/settings_screen.dart';
@@ -28,6 +29,7 @@ class AppShell extends StatelessWidget {
     'devices': (Icons.bluetooth_outlined, Icons.bluetooth_connected),
     'browser': (Icons.public_outlined, Icons.public),
     'settings': (Icons.settings_outlined, Icons.settings),
+    'briefing': (Icons.wb_sunny_outlined, Icons.wb_sunny),
   };
 
   static final destinations = [
@@ -50,6 +52,7 @@ class AppShell extends StatelessWidget {
     DevicesScreen(),
     BrowserScreen(),
     SettingsScreen(),
+    MorningBriefScreen(),
   ];
 
   @override

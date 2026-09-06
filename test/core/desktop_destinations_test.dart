@@ -16,6 +16,7 @@ void main() {
       'devices',
       'browser',
       'settings',
+      'briefing',
     ]);
     expect(AppShell.destinations, hasLength(kDesktopDestinations.length));
     expect(AppShell.screens, hasLength(kDesktopDestinations.length));

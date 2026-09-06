@@ -13,6 +13,9 @@ import '../services/auth_service.dart';
 import '../services/bluetooth_service.dart';
 import '../services/calendar_service.dart';
 import '../services/cloud_reminder_service.dart';
+import '../services/direct_message_service.dart';
+import '../services/health_service.dart';
+import '../services/inbox_service.dart';
 import '../services/news_service.dart';
 import '../services/notification_service.dart';
 import '../services/stock_service.dart';
@@ -67,6 +70,9 @@ Future<AppController> bootstrapHappyWakeyRuntime() async {
     calendar: CalendarService(api),
     notifications: NotificationService(),
     cloudReminders: CloudReminderService(api),
+    inbox: InboxService(api),
+    directMessages: DirectMessageService(api),
+    health: HealthService(),
   );
 }
 

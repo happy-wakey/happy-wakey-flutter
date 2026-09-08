@@ -53,7 +53,7 @@ jobs:
         include:
           - os: ubuntu-24.04
             target: android
-            command: flutter build apk --release
+            command: flutter build apk --debug
           - os: ubuntu-24.04
             target: linux
             command: flutter build linux --release
@@ -89,5 +89,5 @@ jobs:
           cache: true
 
       - run: flutter pub get
-      - name: Compile native release
+      - name: Compile native validation target
         run: ${{ matrix.command }}

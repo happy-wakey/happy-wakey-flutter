@@ -1,0 +1,178 @@
+name: Mobile release candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Semantic release version, for example 1.0.0
+        required: true
+        type: string
+      build_number:
+        description: Positive monotonically increasing Android build number
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: happy-wakey-mobile-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: 3.44.2
+
+jobs:
+  guards:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Reject unsafe Android release configuration
+        run: python3 scripts/check_android_release_contract.py
+
+  quality:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+      - name: Validate the exact release source
+        run: |
+          set -euo pipefail
+          flutter pub get
+          dart format --output=none --set-exit-if-changed .
+          flutter analyze --fatal-infos
+          flutter test
+
+  android-aab:
+    needs: [guards, quality]
+    environment: mobile-release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_BUILD_NUMBER: ${{ inputs.build_number }}
+      HAPPY_WAKEY_ANDROID_KEYSTORE_PATH: /tmp/happy-wakey-release.keystore
+    steps:
+      - name: Check out Happy Wakey
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate protected release inputs
+        shell: bash
+        env:
+          HAPPY_WAKEY_ANDROID_KEYSTORE_BASE64: ${{ secrets.HAPPY_WAKEY_ANDROID_KEYSTORE_BASE64 }}
+          HAPPY_WAKEY_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.HAPPY_WAKEY_ANDROID_KEYSTORE_PASSWORD }}
+          HAPPY_WAKEY_ANDROID_KEY_ALIAS: ${{ secrets.HAPPY_WAKEY_ANDROID_KEY_ALIAS }}
+          HAPPY_WAKEY_ANDROID_KEY_PASSWORD: ${{ secrets.HAPPY_WAKEY_ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$ ]]; then
+            echo "version must be a semantic version" >&2
+            exit 64
+          fi
+          if [[ ! "$RELEASE_BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+            echo "build_number must be a positive integer" >&2
+            exit 64
+          fi
+          for name in \
+            HAPPY_WAKEY_ANDROID_KEYSTORE_BASE64 \
+            HAPPY_WAKEY_ANDROID_KEYSTORE_PASSWORD \
+            HAPPY_WAKEY_ANDROID_KEY_ALIAS \
+            HAPPY_WAKEY_ANDROID_KEY_PASSWORD
+          do
+            if [[ -z "${!name:-}" ]]; then
+              echo "$name is required in the protected mobile-release environment" >&2
+              exit 64
+            fi
+          done
+
+      - uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Materialize the protected Android upload keystore
+        shell: bash
+        env:
+          HAPPY_WAKEY_ANDROID_KEYSTORE_BASE64: ${{ secrets.HAPPY_WAKEY_ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$HAPPY_WAKEY_ANDROID_KEYSTORE_BASE64" \
+            | base64 --decode >"$HAPPY_WAKEY_ANDROID_KEYSTORE_PATH"
+          chmod 600 "$HAPPY_WAKEY_ANDROID_KEYSTORE_PATH"
+          test -s "$HAPPY_WAKEY_ANDROID_KEYSTORE_PATH"
+
+      - name: Build the signed Android App Bundle
+        shell: bash
+        env:
+          HAPPY_WAKEY_ANDROID_KEYSTORE_PASSWORD: ${{ secrets.HAPPY_WAKEY_ANDROID_KEYSTORE_PASSWORD }}
+          HAPPY_WAKEY_ANDROID_KEY_ALIAS: ${{ secrets.HAPPY_WAKEY_ANDROID_KEY_ALIAS }}
+          HAPPY_WAKEY_ANDROID_KEY_PASSWORD: ${{ secrets.HAPPY_WAKEY_ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          flutter pub get
+          flutter build appbundle --release --no-pub \
+            --build-name="$RELEASE_VERSION" \
+            --build-number="$RELEASE_BUILD_NUMBER" \
+            --obfuscate \
+            --split-debug-info="$RUNNER_TEMP/android-symbols"
+
+      - name: Assemble bounded Android release evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          aab="build/app/outputs/bundle/release/app-release.aab"
+          evidence="$RUNNER_TEMP/release-evidence/android"
+          test -s "$aab"
+          mkdir -p "$evidence/dart-symbols"
+          cp "$aab" "$evidence/"
+          cp pubspec.lock "$evidence/"
+          cp -R "$RUNNER_TEMP/android-symbols/." "$evidence/dart-symbols/"
+          git rev-parse HEAD >"$evidence/source-sha.txt"
+          printf '%s\n' "$GITHUB_RUN_ID" >"$evidence/workflow-run-id.txt"
+          printf '%s\n' "$RELEASE_VERSION" >"$evidence/version.txt"
+          printf '%s\n' "$RELEASE_BUILD_NUMBER" >"$evidence/build-number.txt"
+          flutter pub deps --json >"$evidence/dependency-graph.json"
+          jarsigner -verify -verbose -certs "$aab" >"$evidence/signing-verification.txt"
+          grep -Fq "jar verified." "$evidence/signing-verification.txt"
+          checksum_file="$RUNNER_TEMP/android-checksums.sha256"
+          (
+            cd "$evidence"
+            find . -type f ! -name checksums.sha256 -print0 \
+              | sort -z \
+              | xargs -0 sha256sum >"$checksum_file"
+          )
+          mv "$checksum_file" "$evidence/checksums.sha256"
+
+      - name: Retain the signed AAB and evidence
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: happy-wakey-android-${{ inputs.version }}-${{ inputs.build_number }}
+          path: ${{ runner.temp }}/release-evidence/android
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Destroy materialized signing files
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f "$HAPPY_WAKEY_ANDROID_KEYSTORE_PATH" ]]; then
+            shred --force --zero --remove "$HAPPY_WAKEY_ANDROID_KEYSTORE_PATH"
+          fi

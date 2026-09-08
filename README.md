@@ -86,13 +86,18 @@ flutter test
 flutter build web --release
 flutter build macos --release
 flutter build ios --release --no-codesign
-flutter build apk --release
+flutter build apk --debug
 ```
 
 The complete cross-platform matrix is in
 [`validate.yml`](.github/workflows/validate.yml). Formal verification commands,
 properties, assumptions, and the proof boundary are in
 [`formal/README.md`](formal/README.md).
+
+Android release builds require owner-controlled signing material and never
+fall back to the debug certificate. The protected candidate workflow and the
+remaining Google/store/device activation gates are documented in
+[`docs/ANDROID_RELEASE_SIGNING.md`](docs/ANDROID_RELEASE_SIGNING.md).
 
 ## Architecture
 

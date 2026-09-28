@@ -36,8 +36,12 @@ jobs:
           cache: true
 
       - run: flutter pub get
-      - name: Enforce formatting
-        run: dart format --output=none --set-exit-if-changed .
+      - name: Diagnose exact Dart formatting drift
+        run: |
+          set -euo pipefail
+          dart format lib/platform/parity_contract_v1.dart
+          git diff --no-ext-diff -- lib/platform/parity_contract_v1.dart
+          git diff --exit-code -- lib/platform/parity_contract_v1.dart
       - name: Static analysis
         run: flutter analyze --fatal-infos
       - name: Native Dart and widget tests

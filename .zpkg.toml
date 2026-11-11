@@ -10,6 +10,9 @@ keywords = ["flutter", "dart", "mobile", "web", "formal-methods"]
 vcs = "git"
 url = "https://github.com/happy-wakey/happy-wakey-flutter"
 
+[dependencies]
+"oresoftware/ores-flutter" = "^0.1.0"
+
 [targets.dart]
 dir = "."
 adapter = "dart"

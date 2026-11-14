@@ -65,9 +65,13 @@ abstract class AppPlatformAdapter {
 }
 
 /// Return a stable, read-only set for adaptive UI capability diagnostics.
-Set<AppCapability> missingRequiredParityCapabilities(AppPlatformAdapter adapter) {
+Set<AppCapability> missingRequiredParityCapabilities(
+  AppPlatformAdapter adapter,
+) {
   return Set<AppCapability>.unmodifiable(
-    requiredParityCapabilities.where((capability) => !adapter.supports(capability)),
+    requiredParityCapabilities.where(
+      (capability) => !adapter.supports(capability),
+    ),
   );
 }
 

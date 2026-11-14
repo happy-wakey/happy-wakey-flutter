@@ -3,8 +3,7 @@
 /// Native Qt/Flutter, BLE, notification, and lifecycle behavior belongs only
 /// in [AppPlatformAdapter]; product state and destinations remain portable.
 const int crossPlatformParityContractVersion = 1;
-const String rustDesktopCounterpart =
-    'happy-wakey/happy-wakey-desktop-app.rs';
+const String rustDesktopCounterpart = 'happy-wakey/happy-wakey-desktop-app.rs';
 const String e2eParityContract =
     'happy-wakey/happy-wakey-e2e/contracts/desktop-parity.json';
 
@@ -65,10 +64,15 @@ abstract class AppPlatformAdapter {
   bool supports(AppCapability capability);
 }
 
+/// Return a stable, read-only set for adaptive UI capability diagnostics.
+Set<AppCapability> missingRequiredParityCapabilities(AppPlatformAdapter adapter) {
+  return Set<AppCapability>.unmodifiable(
+    requiredParityCapabilities.where((capability) => !adapter.supports(capability)),
+  );
+}
+
 void verifyRequiredParityCapabilities(AppPlatformAdapter adapter) {
-  final missing = requiredParityCapabilities
-      .where((capability) => !adapter.supports(capability))
-      .toList();
+  final missing = missingRequiredParityCapabilities(adapter);
   if (missing.isNotEmpty) {
     throw StateError(
       'Happy Wakey parity gate failed for ${adapter.surface}: $missing',

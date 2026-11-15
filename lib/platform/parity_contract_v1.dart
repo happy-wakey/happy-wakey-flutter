@@ -3,8 +3,7 @@
 /// Native Qt/Flutter, BLE, notification, and lifecycle behavior belongs only
 /// in [AppPlatformAdapter]; product state and destinations remain portable.
 const int crossPlatformParityContractVersion = 1;
-const String rustDesktopCounterpart =
-    'happy-wakey/happy-wakey-desktop-app.rs';
+const String rustDesktopCounterpart = 'happy-wakey/happy-wakey-desktop-app.rs';
 const String e2eParityContract =
     'happy-wakey/happy-wakey-e2e/contracts/desktop-parity.json';
 
